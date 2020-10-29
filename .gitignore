@@ -89,3 +89,5 @@ settings.yml
 .dynamodb/
 
 dist_electron/
+
+dist/
