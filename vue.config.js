@@ -1,7 +1,12 @@
 module.exports = {
   pluginOptions: {
     electronBuilder: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      builderOptions: {
+        appId: "com.kantan.streaming",
+        productName: "StreamTube",
+        copyright: "Copyright © 2020 Kantan Streaming"
+      }
     }
   }
 };
