@@ -18,6 +18,9 @@
         <span v-if="nowPlaying.Type == 'youtube'"
           ><i class="fab fa-youtube" style="color: red"></i
         ></span>
+        <span v-else-if="nowPlaying.Type == 'twitch'"
+          ><i class="fab fa-twitch" style="color: #6441a5"></i
+        ></span>
         {{ nowPlaying.Title }}
       </div>
       <div class="remain">
@@ -104,7 +107,7 @@ export default {
       playlist: [],
       playerVars: {
         autoplay: 1,
-        controls: 1
+        controls: 0
       },
       googleApiKey: settings.youtubeApiKey,
       lastPlayed: [],
@@ -113,7 +116,8 @@ export default {
       addSongPopup: false,
       nowPlaying: "",
       twitchRequests: [],
-      twitchPlayList: []
+      twitchPlayList: [],
+      playType: ""
     };
   },
   beforeMount() {
@@ -188,15 +192,18 @@ export default {
       this.player.setVolume(this.volume);
     },
     next() {
-      this.playedVideos.push(this.currentlyPlaying)
-      if(this.twitchRequests.length > 0) {
-        this.currentlyPlaying = this.twitchRequests.[0]
-        this.twitchRequests.splice(0, 1)
-        this.twitchPlayList.splice(0,1)
+      this.playedVideos.push(this.currentlyPlaying);
+      const that = this;
+      if (this.twitchRequests.length > 0) {
+        this.currentlyPlaying = this.twitchRequests[0];
+        this.twitchRequests.splice(0, 1);
+        this.twitchPlayList.splice(0, 1);
+        this.playType = "twitch";
       } else {
         this.currentlyPlaying = this.songQue[1];
         this.songQue.splice(0, 1);
         this.displayList.splice(0, 1);
+        that.playType = "youtube";
       }
       this.player.setVolume(this.volume);
     },
@@ -205,6 +212,7 @@ export default {
     },
     playing() {
       this.playingStatus = true;
+      const that = this;
       axios
         .get(
           `https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id=${this.currentlyPlaying}&key=${this.googleApiKey}`
@@ -213,7 +221,8 @@ export default {
           db.collection("playing")
             .doc("now")
             .update({
-              Title: response.data.items[0].snippet.title
+              Title: response.data.items[0].snippet.title,
+              Type: that.playType
             });
         });
     },
@@ -230,8 +239,6 @@ export default {
         Title: title
       });
       this.twitchRequests.push(videoId);
-      console.log(this.twitchRequests);
-      console.log(this.twitchPlayList);
     }
   },
   computed: {
@@ -251,13 +258,12 @@ export default {
       this.playlist.forEach(video => {
         that.songQue.push(video.VideoID);
         that.displayList.push(video);
+        that.playType = "youtube";
       });
-      var removedFirst = 0
+      var removedFirst = 0;
       if (removedFirst === 0) {
         this.displayList.splice(0, 1);
-        console.log(removedFirst)
-        removedFirst = 1
-        console.log(this.displayList)
+        removedFirst = 1;
       }
     },
     lastPlayed: function() {
