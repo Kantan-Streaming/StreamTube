@@ -2,6 +2,18 @@
   <div class="nav">
     <div class="title">StreamTube</div>
     <div class="icons">
+      <i
+        v-if="isPinned"
+        style="color: red"
+        class="fas fa-lock"
+        @click="click('unpin')"
+      ></i>
+      <i
+        v-else
+        style="color: lime"
+        class="fas fa-lock-open"
+        @click="click('pin')"
+      ></i>
       <i class="fas fa-cog" @click="click('settings')"></i>
       <i class="fas fa-minus" @click="click('minimize')"></i>
       <i class="fas fa-times" @click="click('close')"></i>
@@ -12,6 +24,11 @@
 <script>
 import { ipcRenderer } from "electron";
 export default {
+  data() {
+    return {
+      isPinned: false
+    };
+  },
   methods: {
     click(type) {
       switch (type) {
@@ -20,6 +37,14 @@ export default {
           break;
         case "minimize":
           ipcRenderer.send("minimizeApp");
+          break;
+        case "pin":
+          this.isPinned = true;
+          ipcRenderer.send("pin");
+          break;
+        case "unpin":
+          this.isPinned = false;
+          ipcRenderer.send("unpin");
           break;
         default:
           ipcRenderer.send("closeApp");

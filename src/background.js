@@ -105,3 +105,11 @@ ipcMain.on("minimizeApp", () => {
 ipcMain.on("closeApp", () => {
   app.exit(0);
 });
+
+ipcMain.on("pin", () => {
+  win.setAlwaysOnTop(true);
+});
+
+ipcMain.on("unpin", () => {
+  win.setAlwaysOnTop(false);
+});
