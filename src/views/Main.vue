@@ -55,11 +55,15 @@
       </div>
     </div>
     <div class="controls">
+      <i class="control-icon fas fa-plus" @click="openModal"></i>
       <i
-        style="width: 40%"
-        class="control-icon fas fa-plus"
-        @click="openModal"
+        class="control-icon fab fa-ethereum"
+        style="color: lime"
+        v-if="playType != 'youtube'"
+        @click="addToPlaylist"
       ></i>
+      <i class="control-icon fab fa-ethereum" v-else></i>
+      <div style="width: 30%"></div>
       <div class="pause-play" style="width: 10%">
         <i v-if="playingStatus" class="fas fa-pause" @click="pause()"></i>
         <i v-else @click="play" class="fas fa-play"></i>
@@ -239,6 +243,15 @@ export default {
         Title: title
       });
       this.twitchRequests.push(videoId);
+    },
+    addToPlaylist() {
+      if (this.playType == "twitch") {
+        db.collection("playlist").add({
+          Title: this.nowPlaying.Title,
+          VideoID: this.currentlyPlaying,
+          TimeAdded: Timestamp.fromDate(new Date())
+        });
+      }
     }
   },
   computed: {
