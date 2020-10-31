@@ -152,7 +152,7 @@ export default {
         );
       } else if (message.includes("!sr")) {
         const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-        var match = message.match(regExp);
+        let match = message.match(regExp);
         if (match) {
           this.addRequest(match[7]);
           client.say(
@@ -249,7 +249,7 @@ export default {
       this.addSongPopup = false;
     },
     async addRequest(videoId) {
-      var title = await this.getVideoTitle(videoId);
+      let title = await this.getVideoTitle(videoId);
       this.twitchPlayList.push({
         VideoID: videoId,
         Title: title
@@ -285,7 +285,7 @@ export default {
         that.displayList.push(video);
         that.playType = "youtube";
       });
-      var removedFirst = 0;
+      let removedFirst = 0;
       if (removedFirst === 0) {
         this.displayList.splice(0, 1);
         removedFirst = 1;
