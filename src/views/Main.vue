@@ -13,11 +13,34 @@
         @playing="playing"
       ></youtube>
     </div>
-    <div class="remain">Remaining Songs - {{ displayList.length }}</div>
+    <div class="player-title">
+      <div class="now-playing">
+        <span v-if="nowPlaying.Type == 'youtube'"
+          ><i class="fab fa-youtube" style="color: red"></i
+        ></span>
+        {{ nowPlaying.Title }}
+      </div>
+      <div class="remain">
+        <i class="fab fa-itunes-note"></i>
+        {{ displayList.length + twitchPlayList.length }}
+      </div>
+    </div>
     <div class="list">
+      <div class="song" v-for="(song, index) in twitchPlayList" :key="index">
+        <div class="arrow">
+          <i style="color: #6441a5" class="fab fa-twitch"></i>
+        </div>
+        <div class="image">
+          <img
+            :src="`https://img.youtube.com/vi/${song.VideoID}/0.jpg`"
+            alt=""
+          />
+        </div>
+        <div class="title">{{ song.Title }}</div>
+      </div>
       <div class="song" v-for="(song, index) in displayList" :key="index">
         <div class="arrow">
-          <i style="color: #696969" class="fas fa-caret-right"></i>
+          <i style="color: red" class="fab fa-youtube"></i>
         </div>
         <div class="image">
           <img
@@ -39,7 +62,7 @@
         <i v-else @click="play" class="fas fa-play"></i>
       </div>
       <input
-        style="width: 30%"
+        style="width: 25%"
         type="range"
         min="0"
         max="100"
@@ -48,6 +71,7 @@
         id="myRange"
         v-model="volume"
       />
+      <i class="control-icon fas fa-forward" @click="ended"></i>
       <i
         style="width: 5%"
         class="control-icon fas fa-step-forward"
@@ -60,9 +84,12 @@
 
 <script>
 import { Timestamp, db } from "../db";
-import addSong from "@/components/addSong.vue";
 import axios from "axios";
+import tmi from "tmi.js";
+
+import addSong from "@/components/addSong.vue";
 import settings from "@/settings.json";
+
 export default {
   components: {
     addSong
@@ -77,18 +104,49 @@ export default {
       playlist: [],
       playerVars: {
         autoplay: 1,
-        controls: 0
+        controls: 1
       },
       googleApiKey: settings.youtubeApiKey,
       lastPlayed: [],
       playedVideos: [],
-      volume: 50,
-      addSongPopup: false
+      volume: 20,
+      addSongPopup: false,
+      nowPlaying: "",
+      twitchRequests: [],
+      twitchPlayList: []
     };
   },
   beforeMount() {
     this.currentlyPlaying = this.songQue[0];
     this.songQue.splice(0, 1);
+    const client = new tmi.Client({
+      options: { debug: true },
+      connection: {
+        secure: true,
+        reconnect: true
+      },
+      identity: {
+        username: settings.twitchBot,
+        password: settings.twitchToken
+      },
+      channels: [settings.twitchChannel]
+    });
+
+    client.connect();
+    client.on("message", (channel, tags, message) => {
+      if (message.includes("!sr")) {
+        const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+        var match = message.match(regExp);
+        if (match) {
+          this.addRequest(match[7]);
+        } else {
+          client.say(
+            settings.twitchChannel,
+            `@${tags["display-name"]} This is not a valid youtube link`
+          );
+        }
+      }
+    });
   },
   methods: {
     async getVideoTitle(id) {
@@ -130,9 +188,16 @@ export default {
       this.player.setVolume(this.volume);
     },
     next() {
-      this.playedVideos.push(this.currentlyPlaying);
-      this.currentlyPlaying = this.songQue[1];
-      this.songQue.splice(0, 1);
+      this.playedVideos.push(this.currentlyPlaying)
+      if(this.twitchRequests.length > 0) {
+        this.currentlyPlaying = this.twitchRequests.[0]
+        this.twitchRequests.splice(0, 1)
+        this.twitchPlayList.splice(0,1)
+      } else {
+        this.currentlyPlaying = this.songQue[1];
+        this.songQue.splice(0, 1);
+        this.displayList.splice(0, 1);
+      }
       this.player.setVolume(this.volume);
     },
     paused() {
@@ -140,13 +205,33 @@ export default {
     },
     playing() {
       this.playingStatus = true;
-      this.displayList.splice(0, 1);
+      axios
+        .get(
+          `https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id=${this.currentlyPlaying}&key=${this.googleApiKey}`
+        )
+        .then(function(response) {
+          db.collection("playing")
+            .doc("now")
+            .update({
+              Title: response.data.items[0].snippet.title
+            });
+        });
     },
     openModal() {
       this.addSongPopup = true;
     },
     closeModal() {
       this.addSongPopup = false;
+    },
+    async addRequest(videoId) {
+      var title = await this.getVideoTitle(videoId);
+      this.twitchPlayList.push({
+        VideoID: videoId,
+        Title: title
+      });
+      this.twitchRequests.push(videoId);
+      console.log(this.twitchRequests);
+      console.log(this.twitchPlayList);
     }
   },
   computed: {
@@ -157,7 +242,8 @@ export default {
   },
   firestore: {
     playlist: db.collection("playlist").orderBy("TimeAdded"),
-    lastPlayed: db.collection("history").orderBy("Date")
+    lastPlayed: db.collection("history").orderBy("Date"),
+    nowPlaying: db.collection("playing").doc("now")
   },
   watch: {
     playlist: function() {
@@ -166,6 +252,13 @@ export default {
         that.songQue.push(video.VideoID);
         that.displayList.push(video);
       });
+      var removedFirst = 0
+      if (removedFirst === 0) {
+        this.displayList.splice(0, 1);
+        console.log(removedFirst)
+        removedFirst = 1
+        console.log(this.displayList)
+      }
     },
     lastPlayed: function() {
       if (this.lastPlayed.length > 20) {
@@ -195,12 +288,14 @@ export default {
 }
 .main .list .song .arrow {
   width: 30px;
-  font-size: 25px;
+  font-size: 15px;
   margin-left: 2px;
   margin-top: 15px;
 }
-.main .remain {
+.main .player-title {
+  display: flex;
   padding: 5px;
+  justify-content: space-between;
 }
 .main .list .song .title {
   margin-left: 10px;
@@ -210,20 +305,24 @@ export default {
 .main .controls {
   width: 100%;
   display: flex;
+  height: 80px;
   box-sizing: border-box;
   justify-content: space-between;
-  padding: 20px;
+  padding: 5px;
   position: fixed;
   bottom: 0;
+  background-color: rgb(29, 29, 29);
 }
 .main .controls .pause-play i {
   border-radius: 50%;
   padding: 20px;
   border: white 2px solid;
+  cursor: pointer;
 }
 .main .controls .control-icon {
   transform: translateY(34.5%);
   font-size: 20px;
+  cursor: pointer;
 }
 .main .controls .slider {
   appearance: none;

@@ -10,11 +10,6 @@
         <input v-model="singleUrl" type="text" name="" id="" />
         <button @click="addSingle">Add</button>
       </div>
-      <div class="form playlist">
-        <div class="subtitle">Add a playlist</div>
-        <input v-model="multiUrl" type="text" name="" id="" />
-        <button>add</button>
-      </div>
     </div>
   </div>
 </template>
@@ -28,8 +23,7 @@ export default {
   data() {
     return {
       googleApiKey: settings.youtubeApiKey,
-      singleUrl: "",
-      multiUrl: ""
+      singleUrl: ""
     };
   },
   methods: {

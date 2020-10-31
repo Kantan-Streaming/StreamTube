@@ -6,6 +6,28 @@
       </div>
       <div class="title">Settings</div>
     </div>
+    <div class="content">
+      <div class="input-group">
+        <div class="title">youtubeApiKey</div>
+        <input type="text" />
+      </div>
+      <div class="input-group">
+        <div class="title">firebaseAppId</div>
+        <input type="text" />
+      </div>
+      <div class="input-group">
+        <div class="title">twitchBot</div>
+        <input type="text" />
+      </div>
+      <div class="input-group">
+        <div class="title">twitchToken</div>
+        <input type="text" />
+      </div>
+      <div class="input-group">
+        <div class="title">twitchChannel</div>
+        <input type="text" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -32,5 +54,19 @@ export default {
 }
 .settings .header .title {
   margin-left: 10px;
+}
+
+.settings .content {
+  box-sizing: border-box;
+  padding: 2rem;
+}
+.settings .content input {
+  outline: none;
+  border: 1px solid rgba(163, 50, 106, 0.75);
+  color: whitesmoke;
+  padding: 7px;
+  font-size: 14px;
+  background-color: #333333;
+  width: 89%;
 }
 </style>

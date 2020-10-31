@@ -91,3 +91,5 @@ settings.yml
 dist_electron/
 
 dist/
+
+src/settings.json
