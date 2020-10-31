@@ -10,14 +10,13 @@
 </template>
 
 <script>
-import router from "@/router";
 import { ipcRenderer } from "electron";
 export default {
   methods: {
     click(type) {
       switch (type) {
         case "settings":
-          router.push("/settings");
+          this.$emit("toggleSettings");
           break;
         case "minimize":
           ipcRenderer.send("minimizeApp");

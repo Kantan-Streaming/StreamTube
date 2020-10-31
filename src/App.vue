@@ -1,18 +1,47 @@
 <template>
   <div id="app">
-    <Nav />
-    <router-view />
+    <Nav @toggleSettings="toggleSettings" />
+    <Main />
+    <Settings v-if="showSettings" @close="closeSettings" class="settings" />
   </div>
 </template>
 
 <script>
 import Nav from "@/components/nav.vue";
+import Main from "@/views/Main.vue";
+import Settings from "@/views/Settings.vue";
 export default {
   components: {
-    Nav
+    Nav,
+    Main,
+    Settings
+  },
+  data() {
+    return {
+      showSettings: false
+    };
+  },
+  methods: {
+    toggleSettings() {
+      this.showSettings = !this.showSettings;
+    },
+    closeSettings() {
+      this.showSettings = false;
+    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.settings {
+  z-index: 9;
+  position: absolute;
+  top: 25px;
+  background-color: rgb(29, 29, 29);
+  width: 100%;
+  height: 100%;
+}
+</style>
 
 <style lang="scss">
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap");

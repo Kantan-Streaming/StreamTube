@@ -93,3 +93,4 @@ dist_electron/
 dist/
 
 src/settings.json
+*.bat

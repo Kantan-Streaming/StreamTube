@@ -32,11 +32,10 @@
 </template>
 
 <script>
-import router from "@/router";
 export default {
   methods: {
     goBack() {
-      router.push("/");
+      this.$emit("close");
     }
   }
 };

@@ -147,6 +147,10 @@ export default {
         var match = message.match(regExp);
         if (match) {
           this.addRequest(match[7]);
+          client.say(
+            settings.twitchChannel,
+            `@${tags["display-name"]} Thanks for requesting! your song is number ${this.twitchRequests.length} in queue`
+          );
         } else {
           client.say(
             settings.twitchChannel,
@@ -315,6 +319,10 @@ export default {
   display: flex;
   padding: 5px;
   justify-content: space-between;
+}
+.main .player-title .remain {
+  width: 40px;
+  display: flex;
 }
 .main .list .song .title {
   margin-left: 10px;
