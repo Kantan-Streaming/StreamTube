@@ -3,6 +3,18 @@
     <div class="title">StreamTube</div>
     <div class="icons">
       <i
+        style="color: lime"
+        v-if="srOn"
+        class="fab fa-twitch"
+        @click="click('srToggle')"
+      ></i>
+      <i
+        style="color: red"
+        v-else
+        class="fab fa-twitch"
+        @click="click('srToggle')"
+      ></i>
+      <i
         v-if="isPinned"
         style="color: red"
         class="fas fa-lock"
@@ -29,6 +41,9 @@ export default {
       isPinned: false
     };
   },
+  props: {
+    srOn: Boolean
+  },
   methods: {
     click(type) {
       switch (type) {
@@ -45,6 +60,9 @@ export default {
         case "unpin":
           this.isPinned = false;
           ipcRenderer.send("unpin");
+          break;
+        case "srToggle":
+          this.$emit("toggleSongRequests");
           break;
         default:
           ipcRenderer.send("closeApp");

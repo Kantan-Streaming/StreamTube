@@ -1,7 +1,11 @@
 <template>
   <div id="app">
-    <Nav @toggleSettings="toggleSettings" />
-    <Main />
+    <Nav
+      :srOn="enableSongRequests"
+      @toggleSettings="toggleSettings"
+      @toggleSongRequests="toggleSongRequests"
+    />
+    <Main :srOn="enableSongRequests" />
     <Settings v-if="showSettings" @close="closeSettings" class="settings" />
   </div>
 </template>
@@ -18,10 +22,14 @@ export default {
   },
   data() {
     return {
-      showSettings: false
+      showSettings: false,
+      enableSongRequests: true
     };
   },
   methods: {
+    toggleSongRequests() {
+      this.enableSongRequests = !this.enableSongRequests;
+    },
     toggleSettings() {
       this.showSettings = !this.showSettings;
     },

@@ -124,6 +124,9 @@ export default {
       playType: ""
     };
   },
+  props: {
+    srOn: Boolean
+  },
   beforeMount() {
     this.currentlyPlaying = this.songQue[0];
     this.songQue.splice(0, 1);
@@ -142,7 +145,12 @@ export default {
 
     client.connect();
     client.on("message", (channel, tags, message) => {
-      if (message.includes("!sr")) {
+      if (message.includes("!sr") && !this.srOn) {
+        client.say(
+          settings.twitchChannel,
+          `@${tags["display-name"]} Sorry song requests are currently disabled`
+        );
+      } else if (message.includes("!sr")) {
         const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
         var match = message.match(regExp);
         if (match) {
