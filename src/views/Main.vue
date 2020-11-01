@@ -122,6 +122,7 @@ export default {
       nowPlaying: "",
       twitchRequests: [],
       twitchPlayList: [],
+      twitchWebsiteList: [],
       playType: ""
     };
   },
@@ -158,7 +159,10 @@ export default {
           this.addRequest(match[7]);
           client.say(
             settings.twitchChannel,
-            `@${tags["display-name"]} Thanks for requesting! your song is number ${this.twitchRequests.length} in queue`
+            `@${
+              tags["display-name"]
+            } Thanks for requesting! your song is number ${this.twitchRequests
+              .length + 1} in queue`
           );
         } else {
           client.say(
@@ -216,6 +220,7 @@ export default {
         this.twitchRequests.splice(0, 1);
         this.twitchPlayList.splice(0, 1);
         this.playType = "twitch";
+        this.removeTwitchSong();
       } else {
         this.currentlyPlaying = this.songQue[1];
         this.songQue.splice(0, 1);
@@ -223,6 +228,11 @@ export default {
         that.playType = "youtube";
       }
       this.player.setVolume(this.volume);
+    },
+    removeTwitchSong() {
+      db.collection("twitchRequests")
+        .doc(this.twitchWebsiteList[0].id)
+        .delete();
     },
     paused() {
       this.playingStatus = false;
@@ -256,6 +266,11 @@ export default {
         VideoID: videoId,
         Title: title
       });
+      db.collection("twitchRequests").add({
+        Title: this.nowPlaying.Title,
+        VideoID: this.currentlyPlaying,
+        TimeAdded: Timestamp.fromDate(new Date())
+      });
       this.twitchRequests.push(videoId);
     },
     addToPlaylist() {
@@ -277,7 +292,8 @@ export default {
   firestore: {
     playlist: db.collection("playlist").orderBy("TimeAdded"),
     lastPlayed: db.collection("history").orderBy("Date"),
-    nowPlaying: db.collection("playing").doc("now")
+    nowPlaying: db.collection("playing").doc("now"),
+    twitchWebsiteList: db.collection("twitchRequests").orderBy("TimeAdded")
   },
   watch: {
     playlist: function() {
