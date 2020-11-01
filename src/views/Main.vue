@@ -162,7 +162,8 @@ export default {
             `@${
               tags["display-name"]
             } Thanks for requesting! your song is number ${this.twitchRequests
-              .length + 1} in queue`
+              .length +
+              1} in queue, see the list at https://domiibunn.live/#/queue`
           );
         } else {
           client.say(
@@ -266,12 +267,15 @@ export default {
         VideoID: videoId,
         Title: title
       });
+      this.addRequestToWebsite(videoId, title);
+      this.twitchRequests.push(videoId);
+    },
+    addRequestToWebsite(id, title) {
       db.collection("twitchRequests").add({
-        Title: this.nowPlaying.Title,
-        VideoID: this.currentlyPlaying,
+        Title: title,
+        VideoID: id,
         TimeAdded: Timestamp.fromDate(new Date())
       });
-      this.twitchRequests.push(videoId);
     },
     addToPlaylist() {
       if (this.playType == "twitch") {
