@@ -1,6 +1,7 @@
 <template>
   <div class="main">
     <div class="video">
+      <div class="click-eater"></div>
       <youtube
         :video-id="currentlyPlaying"
         :fitParent="true"
@@ -307,6 +308,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.video .click-eater {
+  position: absolute;
+  top: 25px;
+  width: 100%;
+  height: 300px;
+  z-index: 30;
+}
 .main .list {
   overflow-y: auto;
   overflow-x: hidden;
