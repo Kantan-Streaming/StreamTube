@@ -238,7 +238,8 @@ export default {
             .doc("now")
             .update({
               Title: response.data.items[0].snippet.title,
-              Type: that.playType
+              Type: that.playType,
+              VideoID: that.currentlyPlaying
             });
         });
     },
