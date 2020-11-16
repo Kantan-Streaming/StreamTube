@@ -111,7 +111,7 @@ export default {
       displayList: [],
       playlist: [],
       playerVars: {
-        autoplay: 1,
+        autoplay: settings.autoPlay,
         controls: 0
       },
       googleApiKey: settings.youtubeApiKey,
@@ -127,7 +127,8 @@ export default {
     };
   },
   props: {
-    srOn: Boolean
+    srOn: Boolean,
+    loopOn: Boolean
   },
   beforeMount() {
     this.currentlyPlaying = this.songQue[0];
@@ -322,6 +323,16 @@ export default {
     },
     volume: function() {
       this.player.setVolume(this.volume);
+    },
+    displayList: function() {
+      const that = this;
+      if (this.displayList.length == 0 && this.loopOn) {
+        this.playlist.forEach(video => {
+          that.songQue.push(video.VideoID);
+          that.displayList.push(video);
+          that.playType = "youtube";
+        });
+      }
     }
   }
 };

@@ -4,6 +4,18 @@
     <div class="icons">
       <i
         style="color: lime"
+        v-if="loopOn"
+        class="fas fa-redo"
+        @click="click('loopToggle')"
+      ></i>
+      <i
+        style="color: red"
+        v-else
+        class="fas fa-redo"
+        @click="click('loopToggle')"
+      ></i>
+      <i
+        style="color: lime"
         v-if="srOn"
         class="fab fa-twitch"
         @click="click('srToggle')"
@@ -42,7 +54,8 @@ export default {
     };
   },
   props: {
-    srOn: Boolean
+    srOn: Boolean,
+    loopOn: Boolean
   },
   methods: {
     click(type) {
@@ -63,6 +76,9 @@ export default {
           break;
         case "srToggle":
           this.$emit("toggleSongRequests");
+          break;
+        case "loopToggle":
+          this.$emit("toggleLoop");
           break;
         default:
           ipcRenderer.send("closeApp");

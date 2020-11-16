@@ -2,10 +2,12 @@
   <div id="app">
     <Nav
       :srOn="enableSongRequests"
+      :loopOn="enableLoop"
       @toggleSettings="toggleSettings"
+      @toggleLoop="loopToggle"
       @toggleSongRequests="toggleSongRequests"
     />
-    <Main :srOn="enableSongRequests" />
+    <Main :srOn="enableSongRequests" :loopOn="enableLoop" />
     <Settings v-if="showSettings" @close="closeSettings" class="settings" />
   </div>
 </template>
@@ -23,7 +25,8 @@ export default {
   data() {
     return {
       showSettings: false,
-      enableSongRequests: true
+      enableSongRequests: true,
+      enableLoop: true
     };
   },
   methods: {
@@ -32,6 +35,9 @@ export default {
     },
     toggleSettings() {
       this.showSettings = !this.showSettings;
+    },
+    loopToggle() {
+      this.enableLoop = !this.enableLoop;
     },
     closeSettings() {
       this.showSettings = false;
