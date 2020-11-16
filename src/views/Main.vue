@@ -25,7 +25,7 @@
         {{ nowPlaying.Title }}
       </div>
       <div class="remain">
-        <i class="fab fa-itunes-note"></i>
+        <i class="fab fa-itunes-note" style="padding-right: 5px"></i>
         {{ displayList.length + twitchPlayList.length }}
       </div>
     </div>
